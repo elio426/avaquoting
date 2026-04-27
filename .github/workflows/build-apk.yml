@@ -47,8 +47,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Install ImageMagick
+        run: sudo apt-get install -y imagemagick
+
       - name: Set app icons
         run: |
+          ...
           SRC="www/icons/icon-512.png"
           BASE="android/app/src/main/res"
           convert "$SRC" -resize 48x48   "$BASE/mipmap-mdpi/ic_launcher.png"
