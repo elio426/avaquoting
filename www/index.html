@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AvaQuoting</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2E7EE8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AvaQuoting">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<style>
+:root{
+  --bg:#06101E;--surface:#0B1929;--card:#0F2138;
+  --border:rgba(56,120,200,0.18);--border2:rgba(56,120,200,0.32);
+  --accent:#2E7EE8;--accent2:#4A9BFF;--accent-glow:rgba(46,126,232,0.22);
+  --text:#E4EFFE;--text2:#7AADD8;--text3:#3D6A96;
+  --radius:14px;--radius-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--text);overscroll-behavior:none;min-height:100vh}
+body{display:flex;justify-content:center}
+.app{width:100%;max-width:430px;padding-bottom:3rem}
+
+.header{padding:1.5rem 1.25rem 1rem;display:flex;align-items:center;justify-content:space-between}
+.hbrand{display:flex;align-items:center;gap:.5rem}
+.hdot{width:8px;height:8px;border-radius:50%;background:var(--accent2);box-shadow:0 0 8px var(--accent2)}
+.htitle{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.hsub{font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.cfg-btn{width:36px;height:36px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cfg-btn svg{width:16px;height:16px;fill:none;stroke:var(--text2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.screen{display:none;padding:0 1.25rem;animation:fi .2s ease}
+.screen.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+.svc-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:4px;gap:3px;margin-bottom:1.25rem}
+.svc-btn{padding:9px 4px;text-align:center;font-size:12px;font-weight:600;color:var(--text2);border:none;background:transparent;border-radius:var(--radius-sm);cursor:pointer;line-height:1.3;transition:all .2s}
+.svc-btn.on{background:var(--accent);color:#fff;box-shadow:0 2px 10px var(--accent-glow)}
+
+.face-block{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:.75rem;position:relative;overflow:hidden}
+.face-block::after{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.35}
+.face-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);margin-bottom:.75rem}
+.dims-grid{display:grid;grid-template-columns:1fr 1fr;gap:.625rem}
+
+.field{margin-bottom:.75rem}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+.field input,.field select{width:100%;font-size:15px;padding:11px 13px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
+.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.field input::placeholder{color:var(--text3)}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%237AADD8' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+
+.term-block{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:.75rem}
+.term-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:.875rem}
+.term-row{display:flex;align-items:center;gap:.625rem;padding:8px 0;border-bottom:1px solid rgba(56,120,200,.07)}
+.term-row:last-child{border-bottom:none}
+.term-check{width:22px;height:22px;border-radius:6px;border:1px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;font-size:12px;font-weight:700;color:transparent}
+.term-check.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.term-lbl{font-size:14px;color:var(--text2);flex:1}
+.term-input{width:75px;font-size:13px;padding:5px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);text-align:right;outline:none}
+.term-input:focus{border-color:var(--accent)}
+.term-unit{font-size:11px;color:var(--text3)}
+
+.ref-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:.625rem;padding-left:28px}
+.ref-opt{padding:8px;font-size:13px;font-weight:500;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;text-align:center;transition:all .15s}
+.ref-opt.on{background:rgba(46,126,232,.15);border-color:var(--accent);color:var(--accent2)}
+
+.coloc-card{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1rem;margin-bottom:.75rem;cursor:pointer;transition:border-color .2s}
+.coloc-card.on{border-color:var(--accent)}
+.coloc-left{display:flex;align-items:center;gap:.625rem}
+.coloc-icon{width:30px;height:30px;border-radius:var(--radius-sm);background:rgba(46,126,232,.1);display:flex;align-items:center;justify-content:center}
+.coloc-icon svg{width:14px;height:14px;stroke:var(--accent2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.coloc-lbl{font-size:14px;font-weight:600;color:var(--text)}
+.coloc-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.sw{width:44px;height:26px;background:var(--surface);border:1px solid var(--border2);border-radius:13px;position:relative;transition:all .2s;flex-shrink:0}
+.sw.on{background:var(--accent);border-color:var(--accent)}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.sw.on::after{transform:translateX(18px)}
+
+.calc-btn{width:100%;padding:15px;font-size:15px;font-weight:700;color:#fff;border:none;cursor:pointer;background:linear-gradient(135deg,#1A6FD4,#2E99FF);border-radius:var(--radius);box-shadow:0 4px 18px rgba(30,110,220,.35);transition:opacity .15s,transform .1s;margin-top:.25rem}
+.calc-btn:active{opacity:.85;transform:scale(.99)}
+
+.result-header{text-align:center;padding:1.25rem 0 1rem}
+.r-badge{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);background:rgba(46,126,232,.1);border:1px solid rgba(46,126,232,.22);border-radius:20px;padding:4px 14px;margin-bottom:.75rem}
+.r-lbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.375rem}
+.r-price{font-size:46px;font-weight:700;color:var(--accent2);line-height:1;letter-spacing:-1px}
+.r-m2{font-size:13px;color:var(--text3);margin-top:6px}
+.rcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.125rem;margin-bottom:.75rem}
+.rcard-t{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+.rcard-t::after{content:'';flex:1;height:1px;background:var(--border)}
+.rrow{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(56,120,200,.07)}
+.rrow:last-child{border-bottom:none}
+.rrow .rl{color:var(--text2)}.rrow .rv{font-weight:600;color:var(--text)}
+.rrow.hi .rl{color:var(--text);font-weight:700}.rrow.hi .rv{color:var(--accent2);font-weight:700;font-size:15px}
+.rdv{height:1px;background:var(--border);margin:6px 0}
+.back-btn{width:100%;padding:13px;font-size:14px;font-weight:600;color:var(--text2);background:transparent;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;margin-top:.75rem}
+
+.cfg-header{display:flex;align-items:center;gap:.75rem;padding:1.5rem 1.25rem 1rem}
+.cfg-back{width:36px;height:36px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.cfg-back svg{width:16px;height:16px;stroke:var(--text2);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.cfg-ttl{font-size:17px;font-weight:700}.cfg-sub{font-size:12px;color:var(--text3);margin-top:1px}
+.slbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin:1.25rem 0 .5rem}
+.ccard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.cr{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-bottom:1px solid rgba(56,120,200,.07)}
+.cr:last-child{border-bottom:none}
+.cr label{font-size:13px;color:var(--text2);flex:1;line-height:1.3}
+.cr input{width:95px;text-align:right;font-size:13px;padding:6px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);outline:none}
+.cr input:focus{border-color:var(--accent)}
+.mtgl{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.mtgl button{border:none;background:transparent;padding:6px 14px;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s}
+.mtgl .on{background:var(--accent);color:#fff;font-weight:600}
+.save-btn{width:100%;padding:14px;font-size:15px;font-weight:700;color:#fff;border:none;cursor:pointer;background:linear-gradient(135deg,#1A6FD4,#2E99FF);border-radius:var(--radius);box-shadow:0 4px 18px rgba(30,110,220,.3);margin-top:1.25rem}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- MAIN -->
+<div class="screen active" id="s-main">
+  <div class="header">
+    <div class="hbrand">
+      <div class="hdot"></div>
+      <div><div class="htitle">AvaQuoting</div><div class="hsub">Cartelería profesional</div></div>
+    </div>
+    <div class="cfg-btn" onclick="goScreen('s-cfg')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </div>
+  </div>
+
+  <div style="padding:0 1.25rem">
+    <div class="svc-tabs">
+      <button class="svc-btn on" id="tab-cartel" onclick="setSvc('cartel')">Cartel<br>simple</button>
+      <button class="svc-btn" id="tab-marquesina" onclick="setSvc('marquesina')">Marque-<br>sina</button>
+      <button class="svc-btn" id="tab-lona" onclick="setSvc('lona')">Lona<br>impresa</button>
+    </div>
+
+    <!-- CARTEL -->
+    <div id="bloque-cartel">
+      <div class="face-block">
+        <p class="face-lbl">Medidas del cartel</p>
+        <div class="dims-grid">
+          <div class="field"><label>Ancho (cm)</label><input type="number" id="c-ancho" placeholder="200" min="1" inputmode="decimal"></div>
+          <div class="field"><label>Alto (cm)</label><input type="number" id="c-alto" placeholder="100" min="1" inputmode="decimal"></div>
+        </div>
+      </div>
+      <div class="field"><label>Tipo de lona</label><select id="tipo-lona-c"></select></div>
+    </div>
+
+    <!-- MARQUESINA -->
+    <div id="bloque-marquesina" style="display:none">
+      <div class="face-block">
+        <p class="face-lbl">Cara frontal</p>
+        <div class="dims-grid">
+          <div class="field"><label>Ancho (cm)</label><input type="number" id="f-ancho" placeholder="300" min="1" inputmode="decimal"></div>
+          <div class="field"><label>Alto (cm)</label><input type="number" id="f-alto" placeholder="80" min="1" inputmode="decimal"></div>
+        </div>
+      </div>
+      <div class="face-block">
+        <p class="face-lbl">Lateral izquierda</p>
+        <div class="dims-grid">
+          <div class="field"><label>Ancho (cm)</label><input type="number" id="li-ancho" placeholder="60" min="1" inputmode="decimal"></div>
+          <div class="field"><label>Alto (cm)</label><input type="number" id="li-alto" placeholder="80" min="1" inputmode="decimal"></div>
+        </div>
+      </div>
+      <div class="face-block">
+        <p class="face-lbl">Lateral derecha</p>
+        <div class="dims-grid">
+          <div class="field"><label>Ancho (cm)</label><input type="number" id="ld-ancho" placeholder="60" min="1" inputmode="decimal"></div>
+          <div class="field"><label>Alto (cm)</label><input type="number" id="ld-alto" placeholder="80" min="1" inputmode="decimal"></div>
+        </div>
+      </div>
+      <div class="field"><label>Tipo de lona</label><select id="tipo-lona-m"></select></div>
+    </div>
+
+    <!-- LONA IMPRESA -->
+    <div id="bloque-lona" style="display:none">
+      <div class="face-block">
+        <p class="face-lbl">Medidas de la lona</p>
+        <div class="dims-grid">
+          <div class="field"><label>Ancho (cm)</label><input type="number" id="l-ancho" placeholder="200" min="1" inputmode="decimal"></div>
+          <div class="field"><label>Alto (cm)</label><input type="number" id="l-alto" placeholder="100" min="1" inputmode="decimal"></div>
+        </div>
+      </div>
+      <div class="field"><label>Tipo de lona</label><select id="tipo-lona-l"></select></div>
+
+      <div class="term-block">
+        <p class="term-title">Terminaciones</p>
+        <div class="term-row">
+          <div class="term-check" id="chk-bolsillos" onclick="toggleTerm('bolsillos')">✓</div>
+          <span class="term-lbl">Bolsillos</span>
+          <input type="number" class="term-input" id="qty-bolsillos" placeholder="0" min="0" inputmode="numeric" style="display:none">
+          <span class="term-unit" id="unit-bolsillos" style="display:none">uds</span>
+        </div>
+        <div class="term-row">
+          <div class="term-check" id="chk-ojales" onclick="toggleTerm('ojales')">✓</div>
+          <span class="term-lbl">Ojales</span>
+          <input type="number" class="term-input" id="qty-ojales" placeholder="0" min="0" inputmode="numeric" style="display:none">
+          <span class="term-unit" id="unit-ojales" style="display:none">uds</span>
+        </div>
+        <div>
+          <div class="term-row">
+            <div class="term-check" id="chk-refuerzo" onclick="toggleTerm('refuerzo')">✓</div>
+            <span class="term-lbl">Refuerzo</span>
+          </div>
+          <div class="ref-opts" id="ref-opts" style="display:none">
+            <div class="ref-opt" id="ref-arriba" onclick="toggleRef('arriba')">Arriba</div>
+            <div class="ref-opt" id="ref-abajo" onclick="toggleRef('abajo')">Abajo</div>
+            <div class="ref-opt" id="ref-costados" onclick="toggleRef('costados')">Costados</div>
+            <div class="ref-opt" id="ref-4lados" onclick="toggleRef('4lados')">4 lados</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLOCACION -->
+    <div id="coloc-wrap">
+      <div class="coloc-card" id="coloc-card" onclick="toggleColoc()">
+        <div class="coloc-left">
+          <div class="coloc-icon">
+            <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          </div>
+          <div>
+            <div class="coloc-lbl">Colocación simple</div>
+            <div class="coloc-sub" id="coloc-sub">Desactivada</div>
+          </div>
+        </div>
+        <div class="sw" id="coloc-sw"></div>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calcular()">Calcular precio →</button>
+  </div>
+</div>
+
+<!-- RESULTADO -->
+<div class="screen" id="s-result">
+  <div style="padding:0 1.25rem">
+    <div class="result-header">
+      <div class="r-badge" id="r-tipo">—</div>
+      <p class="r-lbl">Precio del trabajo</p>
+      <p class="r-price" id="r-precio">$0</p>
+      <p class="r-m2" id="r-m2"></p>
+    </div>
+    <div class="rcard">
+      <p class="rcard-t">Datos</p>
+      <div id="r-caras-info"></div>
+      <div class="rrow"><span class="rl">Lona</span><span class="rv" id="r-lona">—</span></div>
+      <div class="rrow"><span class="rl">Área</span><span class="rv" id="r-area">—</span></div>
+      <div class="rrow" id="rr-torn"><span class="rl">Tornillos</span><span class="rv" id="r-torn">—</span></div>
+      <div class="rrow" id="rr-cper"><span class="rl">Caño perimetral</span><span class="rv" id="r-cper">—</span></div>
+      <div class="rrow" id="rr-bars"><span class="rl">Barras</span><span class="rv" id="r-bars">—</span></div>
+      <div class="rrow" id="rr-cint"><span class="rl">Refuerzos internos</span><span class="rv" id="r-cint">—</span></div>
+    </div>
+    <div class="rcard">
+      <p class="rcard-t">Desglose</p>
+      <div class="rrow"><span class="rl">Impresión + tensado</span><span class="rv" id="r-imp">—</span></div>
+      <div class="rrow" id="rr-can"><span class="rl">Estructura (caños)</span><span class="rv" id="r-can">—</span></div>
+      <div class="rrow" id="rr-mo"><span class="rl">Mano de obra</span><span class="rv" id="r-mo">—</span></div>
+      <div class="rrow" id="rr-cons"><span class="rl">Consumibles</span><span class="rv" id="r-cons">—</span></div>
+      <div class="rrow" id="rr-flete"><span class="rl">Flete + movilidad</span><span class="rv" id="r-flete">—</span></div>
+      <div class="rrow" id="rr-term" style="display:none"><span class="rl">Terminaciones</span><span class="rv" id="r-term">—</span></div>
+      <div class="rrow" id="rr-coloc" style="display:none"><span class="rl">Colocación simple</span><span class="rv" id="r-coloc">—</span></div>
+      <div class="rdv"></div>
+      <div class="rrow hi"><span class="rl">Total</span><span class="rv" id="r-tot">—</span></div>
+    </div>
+    <button class="back-btn" onclick="goScreen('s-main')">← Nueva cotización</button>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div class="screen" id="s-cfg">
+  <div class="cfg-header">
+    <div class="cfg-back" onclick="goScreen('s-main')">
+      <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
+    </div>
+    <div><div class="cfg-ttl">Configuración</div><div class="cfg-sub">Parámetros de costos</div></div>
+  </div>
+  <div style="padding:0 1.25rem">
+    <p class="slbl">Precios de lona ($/m²)</p>
+    <div class="ccard" id="cfg-lonas"></div>
+    <p class="slbl">Caño cuadrado ($/metro)</p>
+    <div class="ccard">
+      <div class="cr"><label>15×15mm / 1.2mm (internos)</label><input type="number" id="cp-15" step="50" oninput="updateCfg()"></div>
+      <div class="cr"><label>20×20mm / 1.2mm (hasta 500cm)</label><input type="number" id="cp-20" step="50" oninput="updateCfg()"></div>
+      <div class="cr"><label>25×25mm / 1.6mm (más de 500cm)</label><input type="number" id="cp-25" step="50" oninput="updateCfg()"></div>
+    </div>
+    <p class="slbl">Mano de obra</p>
+    <div class="ccard">
+      <div class="cr"><label>Multiplicador sobre caños</label>
+        <div class="mtgl">
+          <button id="m2" class="on" onclick="setMult(2)">2×</button>
+          <button id="m25" onclick="setMult(2.5)">2.5×</button>
+        </div>
+      </div>
+    </div>
+    <p class="slbl">Impresión</p>
+    <div class="ccard">
+      <div class="cr"><label>Tensado (% sobre impresión)</label><input type="number" id="pct-tens" step="1" oninput="updateCfg()"></div>
+    </div>
+    <p class="slbl">Consumibles por trabajo</p>
+    <div class="ccard">
+      <div class="cr"><label>Electricidad ($/kWh)</label><input type="number" id="p-kwh" step="1" oninput="updateCfg()"></div>
+      <div class="cr"><label>kWh por trabajo</label><input type="number" id="kwh-total" step=".1" oninput="updateCfg()"></div>
+      <div class="cr"><label>Aerosol anticorrosivo ($)</label><input type="number" id="p-aerosol" step="500" oninput="updateCfg()"></div>
+      <div class="cr"><label>Tornillos ($/unidad)</label><input type="number" id="p-torn" step="10" oninput="updateCfg()"></div>
+      <div class="cr"><label>Electrodos ($/unidad)</label><input type="number" id="p-elec" step="50" oninput="updateCfg()"></div>
+      <div class="cr"><label>Disco de corte/lijado ($)</label><input type="number" id="p-disco" step="100" oninput="updateCfg()"></div>
+    </div>
+    <p class="slbl">Gastos de entrega</p>
+    <div class="ccard">
+      <div class="cr"><label>Flete ($)</label><input type="number" id="p-flete" step="500" oninput="updateCfg()"></div>
+      <div class="cr"><label>Movilidad en auto ($)</label><input type="number" id="p-movil" step="500" oninput="updateCfg()"></div>
+    </div>
+    <p class="slbl">Terminaciones — Lona impresa</p>
+    <div class="ccard">
+      <div class="cr"><label>Bolsillos ($/metro lineal)</label><input type="number" id="p-bolsillos" step="100" oninput="updateCfg()"></div>
+      <div class="cr"><label>Ojales ($/unidad)</label><input type="number" id="p-ojales" step="50" oninput="updateCfg()"></div>
+      <div class="cr"><label>Refuerzo ($/metro lineal)</label><input type="number" id="p-refuerzo" step="100" oninput="updateCfg()"></div>
+    </div>
+    <button class="save-btn" onclick="goScreen('s-main')">Guardar y volver</button>
+  </div>
+</div>
+
+</div>
+<script>
+let svc='cartel';
+let lonas={'Lona front UV':28000,'Lona blackout UV':36000,'Backlight':30000};
+let pC={'15mm':700,'20mm':1200,'25mm':2100};
+let mult=2;
+let cfg={pctTens:15,pKwh:54.5,kwhTotal:3.9,pAerosol:13000,pTorn:50,pElec:400,pDisco:1500,pFlete:10000,pMovil:3000,pBolsillos:3500,pOjales:950,pRefuerzo:3500};
+let colocActive=false;
+let termState={bolsillos:false,ojales:false,refuerzo:false};
+let refState={arriba:false,abajo:false,costados:false,'4lados':false};
+
+function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+
+function setSvc(s){
+  svc=s;
+  ['cartel','marquesina','lona'].forEach(t=>{
+    document.getElementById('tab-'+t).className='svc-btn'+(s===t?' on':'');
+    document.getElementById('bloque-'+t).style.display=s===t?'block':'none';
+  });
+  document.getElementById('coloc-wrap').style.display=s==='lona'?'none':'block';
+}
+
+function setMult(m){mult=m;document.getElementById('m2').className=m===2?'on':'';document.getElementById('m25').className=m===2.5?'on':'';}
+
+function updateCfg(){
+  pC['15mm']=+document.getElementById('cp-15').value||700;
+  pC['20mm']=+document.getElementById('cp-20').value||1200;
+  pC['25mm']=+document.getElementById('cp-25').value||2100;
+  cfg.pctTens=+document.getElementById('pct-tens').value||15;
+  cfg.pKwh=+document.getElementById('p-kwh').value||54.5;
+  cfg.kwhTotal=+document.getElementById('kwh-total').value||3.9;
+  cfg.pAerosol=+document.getElementById('p-aerosol').value||13000;
+  cfg.pTorn=+document.getElementById('p-torn').value||50;
+  cfg.pElec=+document.getElementById('p-elec').value||400;
+  cfg.pDisco=+document.getElementById('p-disco').value||1500;
+  cfg.pFlete=+document.getElementById('p-flete').value||10000;
+  cfg.pMovil=+document.getElementById('p-movil').value||3000;
+  cfg.pBolsillos=+document.getElementById('p-bolsillos').value||3500;
+  cfg.pOjales=+document.getElementById('p-ojales').value||950;
+  cfg.pRefuerzo=+document.getElementById('p-refuerzo').value||3500;
+}
+
+function toggleColoc(){
+  colocActive=!colocActive;
+  document.getElementById('coloc-sw').className='sw'+(colocActive?' on':'');
+  document.getElementById('coloc-card').className='coloc-card'+(colocActive?' on':'');
+  document.getElementById('coloc-sub').textContent=colocActive?'Activada':'Desactivada';
+}
+
+function toggleTerm(t){
+  termState[t]=!termState[t];
+  const on=termState[t];
+  const chk=document.getElementById('chk-'+t);
+  chk.className='term-check'+(on?' on':'');
+  if(t==='bolsillos'||t==='ojales'){
+    document.getElementById('qty-'+t).style.display=on?'inline-block':'none';
+    document.getElementById('unit-'+t).style.display=on?'inline':'none';
+  }
+  if(t==='refuerzo'){
+    document.getElementById('ref-opts').style.display=on?'grid':'none';
+    if(!on)Object.keys(refState).forEach(k=>{refState[k]=false;document.getElementById('ref-'+k).className='ref-opt';});
+  }
+}
+
+function toggleRef(r){
+  if(r==='4lados'){
+    const v=!refState['4lados'];
+    Object.keys(refState).forEach(k=>{refState[k]=false;document.getElementById('ref-'+k).className='ref-opt';});
+    refState['4lados']=v;
+    document.getElementById('ref-4lados').className='ref-opt'+(v?' on':'');
+  } else {
+    refState['4lados']=false;document.getElementById('ref-4lados').className='ref-opt';
+    refState[r]=!refState[r];
+    document.getElementById('ref-'+r).className='ref-opt'+(refState[r]?' on':'');
+  }
+}
+
+function fmt(n){return '$'+Math.round(n).toLocaleString('es-AR')}
+
+function calcFace(anchoCm,altoCm,lonaKey){
+  const ancho=anchoCm/100,alto=altoCm/100,area=ancho*alto;
+  const areaL=((anchoCm+5)/100)*((altoCm+5)/100);
+  const pL=lonas[lonaKey]||0;
+  const sImp=areaL*pL,sTens=sImp*(cfg.pctTens/100);
+  const usarGrande=anchoCm>500||altoCm>150;
+  const keyPer=usarGrande?'25mm':'20mm';
+  const labelPer=usarGrande?'25×25mm / 1.6mm':'20×20mm / 1.2mm';
+  const mtsPer=2*(ancho+alto),barsPer=Math.ceil(mtsPer/6),subPer=mtsPer*pC[keyPer];
+  const cantInt=Math.max(0,Math.ceil(ancho)-1),mtsInt=cantInt*alto;
+  const barsInt=mtsInt>0?Math.ceil(mtsInt/6):0,subInt=mtsInt*pC['15mm'];
+  const totC=subPer+subInt;
+  const torn=Math.ceil(2*(ancho+alto)*100/20);
+  return{area,sImp,sTens,totC,torn,barsPer,barsInt,cantInt,labelPer};
+}
+
+function calcular(){
+  updateCfg();
+  if(svc==='lona'){calcLonaImpresa();return;}
+
+  let faces=[];
+  const lonaKeyC=document.getElementById('tipo-lona-c').value;
+  const lonaKeyM=document.getElementById('tipo-lona-m').value;
+
+  if(svc==='cartel'){
+    const a=parseFloat(document.getElementById('c-ancho').value)||0;
+    const h=parseFloat(document.getElementById('c-alto').value)||0;
+    if(!a||!h){alert('Ingresá las medidas.');return;}
+    faces.push({label:'Cartel',anchoCm:a,altoCm:h,...calcFace(a,h,lonaKeyC)});
+  } else {
+    const fa=parseFloat(document.getElementById('f-ancho').value)||0,fh=parseFloat(document.getElementById('f-alto').value)||0;
+    const la=parseFloat(document.getElementById('li-ancho').value)||0,lh=parseFloat(document.getElementById('li-alto').value)||0;
+    const ra=parseFloat(document.getElementById('ld-ancho').value)||0,rh=parseFloat(document.getElementById('ld-alto').value)||0;
+    if(!fa||!fh||!la||!lh||!ra||!rh){alert('Completá las 3 caras.');return;}
+    faces.push({label:'Frontal',anchoCm:fa,altoCm:fh,...calcFace(fa,fh,lonaKeyM)});
+    faces.push({label:'Lat. izq.',anchoCm:la,altoCm:lh,...calcFace(la,lh,lonaKeyM)});
+    faces.push({label:'Lat. der.',anchoCm:ra,altoCm:rh,...calcFace(ra,rh,lonaKeyM)});
+  }
+
+  let totArea=0,totImp=0,totTens=0,totC=0,totTorn=0,totBP=0,totBI=0,totInt=0,labelPer='';
+  faces.forEach(f=>{totArea+=f.area;totImp+=f.sImp;totTens+=f.sTens;totC+=f.totC;totTorn+=f.torn;totBP+=f.barsPer;totBI+=f.barsInt;totInt+=f.cantInt;labelPer=f.labelPer;});
+
+  const sMO=totC*mult;
+  const sImpT=totImp+totTens;
+  const sElec=cfg.kwhTotal*cfg.pKwh;
+  const sCons=sElec+cfg.pAerosol+(totTorn*cfg.pTorn)+((totArea<=3?2:3)*cfg.pElec)+cfg.pDisco;
+  const sFlete=cfg.pFlete+cfg.pMovil;
+  const subtotal=sImpT+totC+sMO+sCons+sFlete;
+  let sColoc=0;
+  if(colocActive)sColoc=totArea>=2?Math.max(50000,subtotal*0.35):50000;
+  const total=subtotal+sColoc;
+  const lonaKey=svc==='marquesina'?lonaKeyM:lonaKeyC;
+
+  ['rr-torn','rr-cper','rr-bars','rr-cint','rr-can','rr-mo','rr-cons','rr-flete'].forEach(id=>document.getElementById(id).style.display='flex');
+  document.getElementById('rr-term').style.display='none';
+  document.getElementById('rr-coloc').style.display=colocActive?'flex':'none';
+
+  document.getElementById('r-tipo').textContent=svc==='marquesina'?'Marquesina · 3 caras':'Cartel simple';
+  document.getElementById('r-precio').textContent=fmt(total);
+  document.getElementById('r-m2').textContent=fmt(total/totArea)+' por m²';
+  document.getElementById('r-lona').textContent=lonaKey;
+  document.getElementById('r-area').textContent=totArea.toFixed(2)+' m²';
+  document.getElementById('r-torn').textContent=totTorn+' uds.';
+  document.getElementById('r-cper').textContent=labelPer;
+  document.getElementById('r-bars').textContent=totBP+(totBI>0?' + '+totBI+' int.':'')+' barras de 6mt';
+  document.getElementById('r-cint').textContent=totInt>0?totInt+' refuerzo(s) 15×15mm':'Sin refuerzos';
+  document.getElementById('r-imp').textContent=fmt(sImpT);
+  document.getElementById('r-can').textContent=fmt(totC);
+  document.getElementById('r-mo').textContent=fmt(sMO)+' ('+mult+'×)';
+  document.getElementById('r-cons').textContent=fmt(sCons);
+  document.getElementById('r-flete').textContent=fmt(sFlete);
+  if(colocActive)document.getElementById('r-coloc').textContent=fmt(sColoc)+(totArea>=2?' (35%)':' (mínimo)');
+  document.getElementById('r-tot').textContent=fmt(total);
+
+  const el=document.getElementById('r-caras-info');el.innerHTML='';
+  faces.forEach(f=>{const d=document.createElement('div');d.className='rrow';d.innerHTML='<span class="rl">'+f.label+'</span><span class="rv">'+f.anchoCm+' × '+f.altoCm+' cm</span>';el.appendChild(d);});
+  goScreen('s-result');
+}
+
+function calcLonaImpresa(){
+  const anchoCm=parseFloat(document.getElementById('l-ancho').value)||0;
+  const altoCm=parseFloat(document.getElementById('l-alto').value)||0;
+  if(!anchoCm||!altoCm){alert('Ingresá las medidas.');return;}
+  const lonaKey=document.getElementById('tipo-lona-l').value;
+  const areaL=((anchoCm+5)/100)*((altoCm+5)/100);
+  const sImpT=areaL*(lonas[lonaKey]||0);
+
+  let sTerm=0;
+  if(termState.bolsillos){
+    const qty=parseFloat(document.getElementById('qty-bolsillos').value)||0;
+    sTerm+=((anchoCm/100)*qty)*cfg.pBolsillos;
+  }
+  if(termState.ojales){
+    const qty=parseFloat(document.getElementById('qty-ojales').value)||0;
+    sTerm+=qty*cfg.pOjales;
+  }
+  if(termState.refuerzo){
+    const a=anchoCm/100,h=altoCm/100;
+    let mts=0;
+    if(refState['4lados'])mts=2*(a+h);
+    else{if(refState.arriba)mts+=a;if(refState.abajo)mts+=a;if(refState.costados)mts+=2*h;}
+    sTerm+=mts*cfg.pRefuerzo;
+  }
+
+  const total=sImpT+sTerm;
+
+  ['rr-torn','rr-cper','rr-bars','rr-cint','rr-can','rr-mo','rr-cons','rr-flete','rr-coloc'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('rr-term').style.display=sTerm>0?'flex':'none';
+  if(sTerm>0)document.getElementById('r-term').textContent=fmt(sTerm);
+
+  document.getElementById('r-tipo').textContent='Lona impresa';
+  document.getElementById('r-precio').textContent=fmt(total);
+  document.getElementById('r-m2').textContent=fmt(total/areaL)+' por m²';
+  document.getElementById('r-lona').textContent=lonaKey;
+  document.getElementById('r-area').textContent=areaL.toFixed(2)+' m² (con márgenes)';
+  document.getElementById('r-imp').textContent=fmt(sImpT);
+  document.getElementById('r-tot').textContent=fmt(total);
+  const el=document.getElementById('r-caras-info');
+  el.innerHTML='<div class="rrow"><span class="rl">Medidas</span><span class="rv">'+anchoCm+' × '+altoCm+' cm</span></div>';
+  goScreen('s-result');
+}
+
+function init(){
+  const keys=Object.keys(lonas);
+  ['tipo-lona-c','tipo-lona-m','tipo-lona-l'].forEach(id=>{
+    const s=document.getElementById(id);
+    keys.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;s.appendChild(o);});
+  });
+  document.getElementById('cp-15').value=pC['15mm'];
+  document.getElementById('cp-20').value=pC['20mm'];
+  document.getElementById('cp-25').value=pC['25mm'];
+  document.getElementById('pct-tens').value=cfg.pctTens;
+  document.getElementById('p-kwh').value=cfg.pKwh;
+  document.getElementById('kwh-total').value=cfg.kwhTotal;
+  document.getElementById('p-aerosol').value=cfg.pAerosol;
+  document.getElementById('p-torn').value=cfg.pTorn;
+  document.getElementById('p-elec').value=cfg.pElec;
+  document.getElementById('p-disco').value=cfg.pDisco;
+  document.getElementById('p-flete').value=cfg.pFlete;
+  document.getElementById('p-movil').value=cfg.pMovil;
+  document.getElementById('p-bolsillos').value=cfg.pBolsillos;
+  document.getElementById('p-ojales').value=cfg.pOjales;
+  document.getElementById('p-refuerzo').value=cfg.pRefuerzo;
+  const cfgL=document.getElementById('cfg-lonas');
+  keys.forEach(k=>{
+    const row=document.createElement('div');row.className='cr';
+    row.innerHTML='<label>'+k+'</label>';
+    const inp=document.createElement('input');inp.type='number';inp.value=lonas[k];inp.step=500;
+    inp.oninput=function(){lonas[k]=+this.value;};
+    row.appendChild(inp);cfgL.appendChild(row);
+  });
+}
+init();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores principales de AvaQuoting -->
+    <color name="colorPrimary">#2E7EE8</color>
+    <color name="colorPrimaryDark">#06101E</color>
+    <color name="colorAccent">#4A9BFF</color>
+    <color name="colorBackground">#06101E</color>
+    <color name="ic_launcher_background">#06101E</color>
+</resources>
