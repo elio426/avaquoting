@@ -47,25 +47,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Install ImageMagick
-        run: sudo apt-get install -y imagemagick
-
-      - name: Set app icons
-        run: |
-          ...
-          SRC="www/icons/icon-512.png"
-          BASE="android/app/src/main/res"
-          convert "$SRC" -resize 48x48   "$BASE/mipmap-mdpi/ic_launcher.png"
-          convert "$SRC" -resize 48x48   "$BASE/mipmap-mdpi/ic_launcher_round.png"
-          convert "$SRC" -resize 72x72   "$BASE/mipmap-hdpi/ic_launcher.png"
-          convert "$SRC" -resize 72x72   "$BASE/mipmap-hdpi/ic_launcher_round.png"
-          convert "$SRC" -resize 96x96   "$BASE/mipmap-xhdpi/ic_launcher.png"
-          convert "$SRC" -resize 96x96   "$BASE/mipmap-xhdpi/ic_launcher_round.png"
-          convert "$SRC" -resize 144x144 "$BASE/mipmap-xxhdpi/ic_launcher.png"
-          convert "$SRC" -resize 144x144 "$BASE/mipmap-xxhdpi/ic_launcher_round.png"
-          convert "$SRC" -resize 192x192 "$BASE/mipmap-xxxhdpi/ic_launcher.png"
-          convert "$SRC" -resize 192x192 "$BASE/mipmap-xxxhdpi/ic_launcher_round.png"
-
       - name: Build Debug APK
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
