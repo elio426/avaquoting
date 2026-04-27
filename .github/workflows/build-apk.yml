@@ -54,19 +54,16 @@ jobs:
         run: |
           SRC="www/icons/icon-512.png"
           BASE="android/app/src/main/res"
-          declare -A SIZES=(
-            ["mipmap-mdpi"]=48
-            ["mipmap-hdpi"]=72
-            ["mipmap-xhdpi"]=96
-            ["mipmap-xxhdpi"]=144
-            ["mipmap-xxxhdpi"]=192
-          )
-          for DIR in "${!SIZES[@]}"; do
-            SIZE="${SIZES[$DIR]}"
-            mkdir -p "$BASE/$DIR"
-            convert "$SRC" -resize ${SIZE}x${SIZE} "$BASE/$DIR/ic_launcher.png"
-            convert "$SRC" -resize ${SIZE}x${SIZE} "$BASE/$DIR/ic_launcher_round.png"
-          done
+          convert "$SRC" -resize 48x48   "$BASE/mipmap-mdpi/ic_launcher.png"
+          convert "$SRC" -resize 48x48   "$BASE/mipmap-mdpi/ic_launcher_round.png"
+          convert "$SRC" -resize 72x72   "$BASE/mipmap-hdpi/ic_launcher.png"
+          convert "$SRC" -resize 72x72   "$BASE/mipmap-hdpi/ic_launcher_round.png"
+          convert "$SRC" -resize 96x96   "$BASE/mipmap-xhdpi/ic_launcher.png"
+          convert "$SRC" -resize 96x96   "$BASE/mipmap-xhdpi/ic_launcher_round.png"
+          convert "$SRC" -resize 144x144 "$BASE/mipmap-xxhdpi/ic_launcher.png"
+          convert "$SRC" -resize 144x144 "$BASE/mipmap-xxhdpi/ic_launcher_round.png"
+          convert "$SRC" -resize 192x192 "$BASE/mipmap-xxxhdpi/ic_launcher.png"
+          convert "$SRC" -resize 192x192 "$BASE/mipmap-xxxhdpi/ic_launcher_round.png"
 
       - name: Build Debug APK
         working-directory: android
